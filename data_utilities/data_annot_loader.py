@@ -110,8 +110,8 @@ def load_volleyball_dataset(videos_root, annot_root):
 def create_pkl_version(env):
 
     # You can use this function to create and save pkl version of the dataset
-    videos_root = os.path.join(env['dataset_root'], 'videos')
-    annot_root = os.path.join(env['dataset_root'], 'volleyball_tracking_annotation')
+    videos_root = os.path.join(env['dataset_root'], 'volleyball_/videos')
+    annot_root = os.path.join(env['dataset_root'], 'volleyball_tracking_annotation/volleyball_tracking_annotation')
 
     videos_annot = load_volleyball_dataset(videos_root, annot_root)
 
