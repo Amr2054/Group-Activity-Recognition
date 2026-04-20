@@ -18,7 +18,7 @@ def setup_environment(baseline_name="baseline_1"):
     if is_kaggle():
         print("Detected Kaggle Environment.")
         mp.set_start_method('spawn', force=True)
-        env_config['dataset_root'] = "/kaggle/input/your-dataset-name"
+        env_config['dataset_root'] = "/kaggle/input/datasets/ahmedmohamed365/volleyball"
         # Route to specific baseline folder in Kaggle working dir
         base_output = f"/kaggle/working/models/{baseline_name}/outputs"
         env_config['num_workers'] = 4
