@@ -7,3 +7,9 @@
 out
 gen
 dataset
+
+models/*/outputs/
+*.pth
+*.pt
+*.log
+tensorboard_logs/
