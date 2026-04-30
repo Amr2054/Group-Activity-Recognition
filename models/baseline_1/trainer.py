@@ -83,6 +83,6 @@ if __name__ == "__main__":
         save_name=config.model['save_name'],
         logger=logger,
         log_interval=10,
-        class_names=config.model.get('num_clases_label', None)
+        class_names=config.model.get('num_classes_label', None)
     )
     logger.info("Training Pipeline Complete")
