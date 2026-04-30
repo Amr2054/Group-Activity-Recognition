@@ -32,6 +32,7 @@ if __name__ == "__main__":
     # Parse terminal arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True, help="Path to YAML config file")
+    parser.add_argument("--epochs", type=str, required=False, help="number of epochs to train")
     args = parser.parse_args()
 
     # Setup Environment (Auto-detect Kaggle vs Local)
@@ -79,7 +80,8 @@ if __name__ == "__main__":
         val_loader=val_loader,
         criterion=criterion,
         optimizer=optimizer,
-        num_epochs=config.training['epochs'],
+        # num_epochs=config.training['epochs'],
+        num_epochs=args.epochs,
         device=device,
         run_dir=env['run_dir'],
         save_name=config.model['save_name'],

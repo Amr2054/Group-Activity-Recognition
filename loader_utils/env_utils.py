@@ -20,9 +20,10 @@ def setup_environment(baseline_name="baseline_1"):
         mp.set_start_method('spawn', force=True)
         env_config['dataset_root'] = "/kaggle/input/datasets/ahmedmohamed365/volleyball"
         # Route to specific baseline folder in Kaggle working dir
-        base_output = f"/kaggle/working/models/{baseline_name}/outputs"
+        base_output = f"/kaggle/working/Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition/models/{baseline_name}/outputs"
         env_config['num_workers'] = 4
         env_config['annot_dir'] = "/kaggle/working"
+        env_config['b3_phase_A_model'] = "/kaggle/input/models/amr2054/best-person-classifier/pytorch/default/1/best_person_classifier.pth"
     else:
         print("Detected Local Environment.")
         env_config[
@@ -31,6 +32,8 @@ def setup_environment(baseline_name="baseline_1"):
         base_output = f"./models/{baseline_name}/outputs"
         env_config['num_workers'] = 4
         env_config['annot_dir'] = env_config['dataset_root']
+        env_config[
+            'b3_phase_A_model'] = "models/baseline_3/outputs/run_20260429_153112/best_person_classifier.pth"
     # Create a unique run directory
     env_config['run_dir'] = os.path.join(base_output, f"run_{timestamp}")
     os.makedirs(env_config['run_dir'], exist_ok=True)

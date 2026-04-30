@@ -27,6 +27,7 @@ def get_transforms():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True, help="Path to YAML config file")
+    parser.add_argument("--epochs", type=str, required=False, help="number of epochs to train")
     args = parser.parse_args()
 
     # Environment setup
@@ -41,7 +42,8 @@ if __name__ == "__main__":
     videos_path = os.path.join(env['dataset_root'], config.data['videos_dir'])
     annot_path = os.path.join(env['annot_dir'], config.data['annot_file'])
 
-    person_weights_path = os.path.join(env['run_dir'], config.model['person_weights_name'])
+    # person_weights_path = os.path.join(env['run_dir'], config.model['person_weights_name'])
+    person_weights_path = env['b3_phase_A_model']
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Training Group Classifier (Phase B) on device: {device}")
 
@@ -78,7 +80,8 @@ if __name__ == "__main__":
         val_loader=val_loader,
         criterion=criterion,
         optimizer=optimizer,
-        num_epochs=config.training['epochs'],
+        # num_epochs=config.training['epochs'],
+        num_epochs=args.epochs,
         device=device,
         run_dir= env['run_dir'],
         save_name= config.model['save_name'],
