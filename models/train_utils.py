@@ -23,6 +23,7 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
 
     logger.info(f"All outputs will be saved to: {run_dir}")
 
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
     for epoch in range(num_epochs):
         logger.info(f"\n{'=' * 15} Epoch {epoch + 1}/{num_epochs} {'=' * 15}")
 
@@ -95,6 +96,7 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
 
         epoch_val_loss = val_loss / val_total
         epoch_val_acc = 100.0 * val_correct / val_total
+        scheduler.step(epoch_val_loss)
 
         # EPOCH LOGGING & METRICS
         logger.info(f"Train Loss: {epoch_train_loss:.4f} | Train Acc: {epoch_train_acc:.2f}%")

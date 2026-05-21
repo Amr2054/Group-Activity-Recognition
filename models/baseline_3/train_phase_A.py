@@ -1,5 +1,7 @@
 import os
 import argparse
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -67,7 +69,22 @@ if __name__ == "__main__":
     model = PersonLevelClassifier(num_classes=config.model['num_classes']).to(device)
     print_model_summary(model)
 
-    criterion = nn.CrossEntropyLoss()
+    logger.info("Calculating dynamic class weights to combat imbalance")
+
+
+    all_train_labels = [sample[2] for sample in train_set.samples]
+    class_counts = np.bincount(all_train_labels)
+    total_samples = len(all_train_labels)
+    num_classes = len(class_counts)
+    logger.info(f"Class distribution in training set: {class_counts}")
+
+    # Calculate balanced weights
+    # Formula: total_samples / (num_classes * count_for_this_class)
+    class_weights = total_samples / (num_classes * class_counts)
+    weights_tensor = torch.FloatTensor(class_weights).to(device)
+    logger.info(f"Applied Class Weights: {np.round(class_weights, 3)}")
+    criterion = nn.CrossEntropyLoss(weight=weights_tensor)
+
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.Adam(trainable_params, lr=config.training['learning_rate'])
 
