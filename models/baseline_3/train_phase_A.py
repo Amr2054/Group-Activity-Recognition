@@ -17,16 +17,33 @@ from loader_utils.helper import set_seed,setup_logger
 
 def get_transforms():
     train_transform = A.Compose([
-        A.Resize(height=224, width=224),
-        A.HorizontalFlip(p=0.5),
-        A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        A.Resize(224, 224),
+        A.OneOf([
+            A.GaussianBlur(blur_limit=(3, 7)),
+            A.ColorJitter(brightness=0.2),
+            A.RandomBrightnessContrast(),
+            A.GaussNoise()
+        ], p=0.5),
+        A.OneOf([
+            A.HorizontalFlip(),
+            A.VerticalFlip(),
+        ], p=0.05),
+        A.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        ),
         ToTensorV2()
     ])
+
     val_transform = A.Compose([
-        A.Resize(height=224, width=224),
-        A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        A.Resize(224, 224),
+        A.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        ),
         ToTensorV2()
     ])
+
     return train_transform, val_transform
 
 

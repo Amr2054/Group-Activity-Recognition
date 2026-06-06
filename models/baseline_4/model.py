@@ -20,7 +20,7 @@ class Group_Activity_Temporal_Classifier(nn.Module):
                             hidden_size=hidden_size,
                             num_layers=num_layers,
                             batch_first=True,
-                            dropout = 0.5 #TODO Investigate
+                            dropout = 0.5
                             )
         self.fc =  nn.Sequential(
             nn.Linear(in_features= input_size+hidden_size,out_features= 512),
