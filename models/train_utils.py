@@ -58,10 +58,10 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
             train_correct += batch_correct
 
 
-            if (i + 1) % log_interval == 0 or (i + 1) == len(train_loader):
-                current_acc = 100.0 * batch_correct / batch_size
-                logger.info(
-                    f"Epoch: {epoch + 1} | Batch: {i + 1}/{len(train_loader)} | Loss: {loss.item():.4f} | Acc: {current_acc:.2f}%")
+            # if (i + 1) % log_interval == 0 or (i + 1) == len(train_loader):
+            #     current_acc = 100.0 * batch_correct / batch_size
+            #     logger.info(
+            #         f"Epoch: {epoch + 1} | Batch: {i + 1}/{len(train_loader)} | Loss: {loss.item():.4f} | Acc: {current_acc:.2f}%")
 
         epoch_train_loss = train_loss / train_total
         epoch_train_acc = 100.0 * train_correct / train_total
