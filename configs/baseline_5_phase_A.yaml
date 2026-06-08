@@ -1,5 +1,5 @@
 model:
-  num_classes: 8
+  num_classes: 9
   input_size: 2048
   hidden_size: 256
   num_layers: 3
