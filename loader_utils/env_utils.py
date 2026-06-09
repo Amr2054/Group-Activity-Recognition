@@ -24,7 +24,7 @@ def setup_environment(baseline_name="baseline_1"):
         env_config['num_workers'] = 4
         env_config['annot_dir'] = "/kaggle/working"
         env_config['b3_phase_A_model'] = "/kaggle/input/models/amr2054/best-person-classifier/pytorch/default/1/best_person_classifier.pth"
-        env_config['b5_phase_A_model'] = "/kaggle/input/models/amr2054/best-person-classifier/pytorch/default/1/best_person_classifier.pth"
+        env_config['b5_phase_A_model'] = "/kaggle/input/models/amr2054/best-person-temporal-classifier/pytorch/default/1/best_baseline5_phase_A.pth"
     else:
         print("Detected Local Environment.")
         env_config[
