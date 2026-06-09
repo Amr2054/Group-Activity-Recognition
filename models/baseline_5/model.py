@@ -69,8 +69,6 @@ class Group_Activity_Classifier(nn.Module):
             for param in layer.parameters():
                 param.requires_grad = False
 
-        self.pool =  nn.AdaptiveMaxPool2d((1,2048)) # [Batch, 12, hidden_size] -> [Batch, 1, 2048]
-
         self.fc =  nn.Sequential(
             nn.Linear(in_features= hidden_size,out_features= 128),
             nn.BatchNorm1d(128),
@@ -106,4 +104,6 @@ class Group_Activity_Classifier(nn.Module):
         pooled_features = torch.max(lstm_out, dim=1)[0] # (batch,hidden)
         # Group Classification
         out = self.fc(pooled_features)
+
+        # TODO Add concat
         return out

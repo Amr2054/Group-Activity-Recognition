@@ -47,7 +47,7 @@ class Group_Activity_Temporal_Classifier(nn.Module):
         x = x.view(batch*player*frame,c,h,w) # (seq * 12 * 9, 3, 244, 244)
 
         # CNN Feature Extraction
-        features= self.feature_extractor(x) # (seq * 12 * 9, 2048, 1, 1)
+        features= self.person_feature_extractor(x) # (seq * 12 * 9, 2048, 1, 1)
         features = features.view(batch * player * frame, -1) # (seq * 12 * 9, 2048)
 
         # Return to original dimension

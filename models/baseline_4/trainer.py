@@ -16,15 +16,22 @@ from loader_utils.env_utils import setup_environment
 
 def get_transforms():
     """
-    No RandomResizedCrop or random rotations
-    The players must remain in the exact same spatial location across all 9 frames
+    Locked spatial geometry for the LSTM sequences.
     """
-    base_transform = A.Compose([
+    train_transform = A.Compose([
+        A.Resize(height=224, width=224),
+        A.ColorJitter(brightness=0.1, contrast=0.1, p=0.3),
+        A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ToTensorV2()
+    ])
+
+    val_transform = A.Compose([
         A.Resize(height=224, width=224),
         A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ToTensorV2()
     ])
-    return base_transform
+
+    return train_transform, val_transform
 
 
 if __name__ == "__main__":
@@ -49,12 +56,12 @@ if __name__ == "__main__":
     logger.info(f"Training on device: {device}")
 
     # Data Preparation
-    base_transform = get_transforms()
+    train_transform, val_transform = get_transforms()
 
-    train_set = SequenceActivityDataset(videos_path, annot_path, config.data['video_splits']['train'], transform=base_transform,
+    train_set = SequenceActivityDataset(videos_path, annot_path, config.data['video_splits']['train'], transform=train_transform,
                                         seq_length=9)
     val_set = SequenceActivityDataset(videos_path, annot_path, config.data['video_splits']['validation'],
-                              transform=base_transform, seq_length=9)
+                              transform=val_transform, seq_length=9)
 
     train_loader = DataLoader(train_set, batch_size=config.training['batch_size'], shuffle=True,
                               num_workers=env['num_workers'], pin_memory=True)
@@ -77,6 +84,8 @@ if __name__ == "__main__":
 
     logger.info("Initializing training loop")
 
+    num_epochs = args.epochs if args.epochs else config.training['epochs']
+
     # 5. Training
     best_model = train_and_validate(
         model=model,
@@ -84,8 +93,7 @@ if __name__ == "__main__":
         val_loader=val_loader,
         criterion=criterion,
         optimizer=optimizer,
-        # num_epochs=config.training['epochs'],
-        num_epochs=args.epochs,
+        num_epochs=num_epochs,
         device=device,
         run_dir=env['run_dir'],
         save_name=config.model['save_name'],

@@ -9,11 +9,16 @@ class Group_Activity_Temporal_Classifier(nn.Module):
         super(Group_Activity_Temporal_Classifier, self).__init__()
 
         image_feature_extractor = resnet50(weights=torchvision.models.ResNet50_Weights.DEFAULT)
+
+        for param in image_feature_extractor.parameters():
+            param.requires_grad = False
+
+        for param in image_feature_extractor.layer4.parameters():
+            param.requires_grad = True
+
         layers = list(image_feature_extractor.children())[:-1]
         self.feature_extractor = nn.Sequential(*layers)  # remove last FC layer
 
-        for param in self.feature_extractor.parameters():
-            param.requires_grad = False
 
         self.lstm = nn.LSTM( # input (seq,frames,2048) out (seq,frames,hidden_size)
                             input_size=input_size,
@@ -22,6 +27,7 @@ class Group_Activity_Temporal_Classifier(nn.Module):
                             batch_first=True,
                             dropout = 0.5
                             )
+        
         self.fc =  nn.Sequential(
             nn.Linear(in_features= input_size+hidden_size,out_features= 512),
             nn.BatchNorm1d(512),

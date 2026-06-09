@@ -7,10 +7,9 @@ from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from data_utilities import PlayerGroupActivityDataset
-from models.baseline_3.model import PersonLevelClassifier
-from models.baseline_6.model import Group_Activity_Temporal_Classifier
-from models.train_utils import train_and_validate
+from data_utilities.dataset import PlayerGroupActivityDataset
+from models.baseline_5.model import Person_Activity_Temporal_Classifier, Group_Activity_Classifier
+from models.train_utils import train_and_validate, print_model_summary
 from loader_utils.helper import load_config, set_seed, setup_logger
 from loader_utils.env_utils import setup_environment
 
@@ -34,63 +33,81 @@ def get_transforms():
 
     return train_transform, val_transform
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True, help="Path to YAML config file")
-    parser.add_argument("--epochs", type=int, required=False, help="number of epochs to train")
+    parser.add_argument("--epochs", type=int, required=False, help="Number of epochs to train")
     args = parser.parse_args()
 
-    # Setup Environment (Auto-detect Kaggle vs Local)
-    env = setup_environment(baseline_name="baseline_6")
+    # Environment Setup
+    env = setup_environment(baseline_name="baseline_5")
     config = load_config(args.config)
     set_seed(42)
 
     logger = setup_logger(env['run_dir'])
-    logger.info("Starting Baseline 6 Training Pipeline")
+    logger.info("Starting Baseline 5 Phase B (Group Temporal) Training Pipeline")
 
-    # Construct dynamic paths
     videos_path = os.path.join(env['dataset_root'], config.data['videos_dir'])
     annot_path = os.path.join(env['annot_dir'], config.data['annot_file'])
-
-    person_weights_path = env['b3_phase_A_model']
-
+    person_weights_path = env['b5_phase_A_model']
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Training on device: {device}")
 
     # Data Preparation
     train_transform, val_transform = get_transforms()
 
-    train_set = PlayerGroupActivityDataset(videos_path, annot_path, config.data['video_splits']['train'],
-                                              transform=train_transform,seq_length=9)
-    val_set = PlayerGroupActivityDataset(videos_path, annot_path, config.data['video_splits']['validation'],
-                                              transform=val_transform, seq_length=9)
+    train_set = PlayerGroupActivityDataset(
+        videos_root=videos_path,
+        annot_path=annot_path,
+        vid_indices=config.data['video_splits']['train'],
+        transform=train_transform,
+        seq_length=9,
+        max_players=12
+    )
+
+    val_set = PlayerGroupActivityDataset(
+        videos_root=videos_path,
+        annot_path=annot_path,
+        vid_indices=config.data['video_splits']['validation'],
+        transform=val_transform,
+        seq_length=9,
+        max_players=12
+    )
 
     train_loader = DataLoader(train_set, batch_size=config.training['batch_size'], shuffle=True,
                               num_workers=env['num_workers'], pin_memory=True)
     val_loader = DataLoader(val_set, batch_size=config.training['batch_size'], shuffle=False,
-                              num_workers=env['num_workers'], pin_memory=True)
+                            num_workers=env['num_workers'], pin_memory=True)
 
-    # Load Person Classifier pretrained model
-    person_model = PersonLevelClassifier(num_classes=config.model['num_person_classes'])
-    try:
-        person_model.load_state_dict(torch.load(person_weights_path, map_location=device, weights_only=True))
-        print(f"Successfully loaded Person Classifier weights from: {person_weights_path}")
-    except FileNotFoundError:
-        print(f"Error: {person_weights_path} not found. You must train Person Classifier first")
-        exit(1)
-
-    # Initialize Model
-    model = Group_Activity_Temporal_Classifier(
-        person_classifier=person_model,
-        num_classes=config.model['num_classes'],
+    # Load Phase A Model & Weights
+    logger.info(f"Loading Phase A (Person) weights from: {person_weights_path}")
+    person_model = Person_Activity_Temporal_Classifier(
         input_size=config.model['input_size'],
+        num_classes=config.model['num_person_classes'],
         hidden_size=config.model['hidden_size'],
         num_layers=config.model['num_layers']
+    )
+
+    try:
+        person_model.load_state_dict(torch.load(person_weights_path, map_location=device,weights_only=True))
+        logger.info(f"Successfully loaded Phase A weights from: {person_weights_path}")
+    except FileNotFoundError:
+        logger.error(f"Error: {person_weights_path} not found. You must train Phase A first")
+        exit(1)
+
+    # Initialize Phase B Model
+    # Inject the loaded Phase A model into the Group Classifier
+    model = Group_Activity_Classifier(
+        person_feature_extraction=person_model,
+        num_classes=config.model['num_classes']
     ).to(device)
+
+    print_model_summary(model)
 
     criterion = nn.CrossEntropyLoss()
 
-    # We only pass trainable parameters to the optimizer
+    # Only pass trainable parameters to the optimizer (Phase A is frozen inside the model)
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.Adam(trainable_params, lr=config.training['learning_rate'])
 
@@ -98,7 +115,7 @@ if __name__ == "__main__":
 
     num_epochs = args.epochs if args.epochs else config.training['epochs']
 
-    # Training
+    # Training Loop
     best_model = train_and_validate(
         model=model,
         train_loader=train_loader,
@@ -114,4 +131,4 @@ if __name__ == "__main__":
         class_names=config.model.get('num_classes_label', None)
     )
 
-    logger.info("Baseline 6 Training Complete.")
+    logger.info("Phase B Training Complete!")
