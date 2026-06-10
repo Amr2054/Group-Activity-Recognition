@@ -30,7 +30,7 @@ class Group_Activity_Temporal_Classifier(nn.Module):
 
         fc_input_dim = input_size + (hidden_size * 2)
         self.fc =  nn.Sequential(
-            nn.Linear(in_features= input_size,out_features= 512),
+            nn.Linear(in_features= fc_input_dim,out_features= 512),
             nn.BatchNorm1d(512),
             nn.ReLU(),
             nn.Dropout(p=0.5),
