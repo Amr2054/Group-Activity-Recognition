@@ -76,9 +76,8 @@ if __name__ == "__main__":
         num_layers=config.model['num_layers']
     ).to(device)
 
-    # criterion = nn.CrossEntropyLoss()
-    criterion = FocalLoss(gamma=2.0)
-    
+    criterion = nn.CrossEntropyLoss()
+
     # We only pass trainable parameters to the optimizer
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.Adam(trainable_params, lr=config.training['learning_rate'])
