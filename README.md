@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/22cc8c54-f3c7-4900-a9db-3e37fffac5ad" alt="Background Image" width="95%" />
+  <img src="assets/header.png" alt="Background Image" width="95%" />
 </div>
 
 <h1 align="center">Hierarchical Deep Temporal Model for Group Activity Recognition</h1>
@@ -157,32 +157,6 @@ This project systematically reconstructs the baselines defined in the original p
 * **Baseline 6 (Group-Only Temporal Model):** Skips the individual Person LSTM. Instead, it extracts spatial features for all 12 players, applies Max + Mean pooling to summarize the team's posture frame-by-frame, and passes that timeline directly into a Group BiLSTM.
 * **Baseline 7 (Full Two-Stage Hierarchical Model):** The complete architecture combining B5 and B6. It utilizes the Phase A Person LSTM to extract high-level individual action semantics, applies **Frame-by-Frame Pooling**, and feeds the resulting temporal sequence into a Group BiLSTM to track complex team dynamics.
 * **Baseline 8 (Sub-Group Pooling):** The ultimate evolution of the model. To prevent the Group LSTM from mixing up "Left Spikes" and "Right Spikes," this baseline introduces **Anchor Frame X-axis Sorting**. It physically slices the court in half, explicitly mapping the first 6 players to the Left Team tensor and the remaining 6 to the Right Team tensor before temporal tracking.
-
-[//]: # (### Performance Comparison)
-
-[//]: # ()
-[//]: # (*&#40;Note: The PyTorch implementations heavily outperform the original 2016 Caffe baselines due to modern backbones, Center-Frame Spatial Anchoring, and Max+Mean concatenation&#41;.*)
-
-[//]: # ()
-[//]: # (| **Model** | **Paper Accuracy &#40;2016&#41;** | **My Accuracy &#40;PyTorch&#41;** | **My F1 Score** |)
-
-[//]: # (| --- | --- | --- | --- |)
-
-[//]: # (| **B1:** Image Classification | 66.7% | - | - |)
-
-[//]: # (| **B2:** Person Classification | 64.6% | - | - |)
-
-[//]: # (| **B3:** Fine-tuned Person | 68.1% | - | - |)
-
-[//]: # (| **B4:** Full-Frame Temporal | 63.1% | [Training...] | [Training...] |)
-
-[//]: # (| **B5:** Temporal Person Features | 67.6% | 79.49% | 0.79 |)
-
-[//]: # (| **B6:** Two-stage w/o LSTM 1 | 74.7% | [Training...] | [Training...] |)
-
-[//]: # (| **B7:** Two-stage Hierarchical | 80.2% | [Training...] | [Training...] |)
-
-[//]: # (| **B8:** Sub-Group Pooling | **81.9%** | [Training...] | [Training...] |)
 
 ---
 
