@@ -1,5 +1,4 @@
 <div align="center">
-  <!-- You can replace this link with a GIF or image of volleyball bounding boxes later -->
   <img src="https://github.com/user-attachments/assets/22cc8c54-f3c7-4900-a9db-3e37fffac5ad" alt="Background Image" width="95%" />
 </div>
 
@@ -18,10 +17,10 @@
 
 ## Table of Contents
 1. [Key Features & Architecture Updates](#key-features--architecture-updates)
-2. [Project Structure](#project-structure)
-3. [Dataset Overview](#dataset-overview)
-4. [Ablation Study (The Baselines)](#ablation-study-the-baselines)
-5. [Getting Started (Usage)](#getting-started-usage)
+2. [Getting Started (Usage)](#getting-started-usage)
+3. [Project Structure](#project-structure)
+4. [Dataset Overview](#dataset-overview)
+5. [Ablation Study (The Baselines)](#ablation-study-the-baselines)
 6. [Cloud Training (Kaggle/Colab Bridge)](#cloud-training-kagglecolab-bridge)
 
 ---
@@ -36,6 +35,39 @@ This repository upgrades the original 2016 Caffe implementation to modern standa
 * **Rich Logging:** Replaced standard terminal outputs with a custom `logging` pipeline that outputs timestamped, batch-level metrics to text files alongside TensorBoard visualizations.
 
 ---
+## Getting Started (Usage)
+
+### 1. Clone & Install
+
+```bash
+git clone [https://github.com/Amr2054/Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition.git](https://github.com/Amr2054/Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition.git)
+cd Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition
+pip install -r requirements.txt
+
+```
+
+### 2. Dataset Preparation
+
+Ensure the Volleyball dataset is downloaded. Parse the raw text annotations into the optimized `.pkl` format:
+
+```bash
+python -m data_utilities.data_annot_loader
+
+```
+
+### 3. Train a Model
+
+Because the project uses module execution, run training scripts from the root directory and pass the corresponding YAML config:
+
+```bash
+# Example: Training the Baseline 4 LRCN Model
+python -m models.baseline_4.train --config configs/baseline_4.yaml
+
+```
+
+Outputs, `.pth` weights, TensorBoard logs, and Confusion Matrices will automatically save to `models/baseline_X/outputs/run_[timestamp]/`.
+
+---
 
 ## Project Structure
 ```text
@@ -44,107 +76,126 @@ Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition/
 │   ├── baseline_1.yaml
 │   ├── baseline_3_phase_A.yaml
 │   ├── baseline_3_phase_B.yaml
-│   └── baseline_4.yaml
+│   ├── baseline_4.yaml
+│   ├── baseline_5_phase_A.yaml
+│   ├── baseline_5_phase_B.yaml
+│   ├── baseline_6.yaml
+│   ├── baseline_7.yaml
+│   └── baseline_8.yaml
 ├── data_utilities/           # Data ingestion, Pickling, and PyTorch Datasets
 │   ├── box_annot.py
 │   ├── data_annot_loader.py
-│   └── dataset.py            # Contains GroupActivity, PersonAction, and Sequence Datasets
+│   └── dataset.py            # Contains Bounding Box, Frame-by-Frame, and Anchor-Sorted Datasets
 ├── loader_utils/             # Core engineering utilities
 │   ├── env_utils.py          # Auto-detects Kaggle vs Local environments
 │   └── helper.py             # Config parsers, seed setting, and formatting loggers
 ├── models/                   # Architecture and Training scripts
-│   ├── train_utils.py        # Universal training/validation loop with AMP and TensorBoard
+│   ├── train_utils.py        # Universal training/validation loop
 │   ├── baseline_1/           # Standard ResNet50 Image Classifier
 │   ├── baseline_3/           # Spatial Person & Group Classifier
-│   └── baseline_4/           # Long-term Recurrent Convolutional Network (LRCN)
+│   ├── baseline_4/           # Full-Frame Temporal LRCN
+│   ├── baseline_5/           # Phase A (Person LSTM) + Phase B (Deep Freeze Linear Pool)
+│   ├── baseline_6/           # Single-Stage Group BiLSTM (No Person LSTM)
+│   ├── baseline_7/           # Full Two-Stage Model (Person LSTM + Group BiLSTM)
+│   └── baseline_8/           # Final Model (Two-Stage with Left/Right Sub-Group Pooling)
 └── requirements.txt
+
 ```
 
 ---
 
 ## Dataset Overview
-The dataset utilizes publicly available YouTube volleyball videos, containing 4,830 annotated frames from 55 videos. 
+
+The dataset utilizes publicly available YouTube volleyball videos, containing 4,830 annotated frames from 55 videos.
 
 #### Group Activity Labels
+
 | Group Activity Class | Instances |
-|-----------------------|-----------|
-| Right set            | 644       |
-| Right spike          | 623       |
-| Right pass           | 801       |
-| Right winpoint       | 295       |
-| Left winpoint        | 367       |
-| Left pass            | 826       |
-| Left spike           | 642       |
-| Left set             | 633       |
+| --- | --- |
+| Right set | 644 |
+| Right spike | 623 |
+| Right pass | 801 |
+| Right winpoint | 295 |
+| Left winpoint | 367 |
+| Left pass | 826 |
+| Left spike | 642 |
+| Left set | 633 |
 
 #### Player Action Labels
-| Action Class | Instances |
-|--------------|-----------|
-| Waiting      | 3,601     |
-| Setting      | 1,332     |
-| Digging      | 2,333     |
-| Falling      | 1,241     |
-| Spiking      | 1,216     |
-| Blocking     | 2,458     |
-| Jumping      | 341       |
-| Moving       | 5,121     |
-| Standing     | 38,696    |
 
+| Action Class | Instances |
+| --- | --- |
+| Waiting | 3,601 |
+| Setting | 1,332 |
+| Digging | 2,333 |
+| Falling | 1,241 |
+| Spiking | 1,216 |
+| Blocking | 2,458 |
+| Jumping | 341 |
+| Moving | 5,121 |
+| Standing | 38,696 |
 
 ### Dataset Organization
 
-- **Videos**: 55, each assigned a unique ID (0–54).
-- **Train Videos**: 1, 3, 6, 7, 10, 13, 15, 16, 18, 22, 23, 31, 32, 36, 38, 39, 40, 41, 42, 48, 50, 52, 53, 54.
-- **Validation Videos**: 0, 2, 8, 12, 17, 19, 24, 26, 27, 28, 30, 33, 46, 49, 51.
-- **Test Videos**: 4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47.
-
-
+* **Videos**: 55, each assigned a unique ID (0–54).
+* **Train Videos**: 1, 3, 6, 7, 10, 13, 15, 16, 18, 22, 23, 31, 32, 36, 38, 39, 40, 41, 42, 48, 50, 52, 53, 54.
+* **Validation Videos**: 0, 2, 8, 12, 17, 19, 24, 26, 27, 28, 30, 33, 46, 49, 51.
+* **Test Videos**: 4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47.
 
 For further information about dataset, you can check out the paper author's repository: [link](https://github.com/mostafa-saad/deep-activity-rec)
 
 ---
+
 ## Ablation Study (The Baselines)
-This project breaks down the paper's architecture into distinct baselines to analyze the impact of spatial vs. temporal features:
+
+This project systematically reconstructs the baselines defined in the original paper to analyze the impact of spatial vs. temporal features, and individual vs. group dynamics.
 
 * **Baseline 1 (Image Classification):** A purely spatial model using ResNet50 to classify the group activity from a single, static video frame.
 * **Baseline 3 (Fine-tuned Person Classification):** Deploys ResNet50 to extract 2048-d features from individual player bounding boxes. Features are pooled across all players in a frame and fed to a classifier.
-* **Baseline 4 (LRCN - Temporal Image Features):** Introduces time. A sequence of 9 frames (a clip) is passed through ResNet50 to extract spatial features, which are chronologically fed into an `LSTM` to understand group motion before classification.
+* **Baseline 4 (LRCN - Temporal Image Features):** Introduces time. A sequence of 9 frames (a clip) is passed through ResNet50 to extract spatial features, which are chronologically fed into an LSTM to understand group motion before classification.
+* **Baseline 5 (Temporal Model with Person Features):** A two-phase architecture. **Phase A** trains an LSTM to track individual player crops over 9 frames. **Phase B** uses a "Deep Freeze" strategy, pooling the 12 frozen player features into a final linear classifier using a Center-Frame Spatial Anchor to preserve left/right court orientation.
+* **Baseline 6 (Group-Only Temporal Model):** Skips the individual Person LSTM. Instead, it extracts spatial features for all 12 players, applies Max + Mean pooling to summarize the team's posture frame-by-frame, and passes that timeline directly into a Group BiLSTM.
+* **Baseline 7 (Full Two-Stage Hierarchical Model):** The complete architecture combining B5 and B6. It utilizes the Phase A Person LSTM to extract high-level individual action semantics, applies **Frame-by-Frame Pooling**, and feeds the resulting temporal sequence into a Group BiLSTM to track complex team dynamics.
+* **Baseline 8 (Sub-Group Pooling):** The ultimate evolution of the model. To prevent the Group LSTM from mixing up "Left Spikes" and "Right Spikes," this baseline introduces **Anchor Frame X-axis Sorting**. It physically slices the court in half, explicitly mapping the first 6 players to the Left Team tensor and the remaining 6 to the Right Team tensor before temporal tracking.
+
+[//]: # (### Performance Comparison)
+
+[//]: # ()
+[//]: # (*&#40;Note: The PyTorch implementations heavily outperform the original 2016 Caffe baselines due to modern backbones, Center-Frame Spatial Anchoring, and Max+Mean concatenation&#41;.*)
+
+[//]: # ()
+[//]: # (| **Model** | **Paper Accuracy &#40;2016&#41;** | **My Accuracy &#40;PyTorch&#41;** | **My F1 Score** |)
+
+[//]: # (| --- | --- | --- | --- |)
+
+[//]: # (| **B1:** Image Classification | 66.7% | - | - |)
+
+[//]: # (| **B2:** Person Classification | 64.6% | - | - |)
+
+[//]: # (| **B3:** Fine-tuned Person | 68.1% | - | - |)
+
+[//]: # (| **B4:** Full-Frame Temporal | 63.1% | [Training...] | [Training...] |)
+
+[//]: # (| **B5:** Temporal Person Features | 67.6% | 79.49% | 0.79 |)
+
+[//]: # (| **B6:** Two-stage w/o LSTM 1 | 74.7% | [Training...] | [Training...] |)
+
+[//]: # (| **B7:** Two-stage Hierarchical | 80.2% | [Training...] | [Training...] |)
+
+[//]: # (| **B8:** Sub-Group Pooling | **81.9%** | [Training...] | [Training...] |)
 
 ---
 
-## Getting Started (Usage)
-
-### 1. Clone & Install
-```bash
-git clone [https://github.com/Amr2054/Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition.git)
-cd Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition
-```
-
-### 2. Dataset Preparation
-Ensure the Volleyball dataset is downloaded. Parse the raw text annotations into the optimized `.pkl` format:
-```bash
-python -m data_utilities.data_annot_loader
-```
-
-### 3. Train a Model
-Because the project uses module execution, run training scripts from the root directory and pass the corresponding YAML config:
-```bash
-# Example: Training the Baseline 4 LRCN Model
-python -m models.baseline_4.train --config configs/baseline_4.yaml
-```
-
-Outputs, `.pth` weights, TensorBoard logs, and Confusion Matrices will automatically save to `models/baseline_X/outputs/run_[timestamp]/`.
-
----
 
 ## Cloud Training (Kaggle/Colab Bridge)
+
 This repository is designed to be edited in a local IDE (like PyCharm/VSCode) but executed on cloud GPUs without path errors.
 
 1. Push your code to GitHub.
 2. In a Kaggle Notebook, clone your private repo using a Personal Access Token (PAT).
-3. The internal `setup_environment()` function will automatically detect the Kaggle kernel, reroute the dataset paths to `/kaggle/input/`, write outputs to `/kaggle/working/`, and configure the DataLoader `num_workers` to prevent container deadlocks. 
+3. The internal `setup_environment()` function will automatically detect the Kaggle kernel, reroute the dataset paths to `/kaggle/input/`, write outputs to `/kaggle/working/`, and configure the DataLoader `num_workers` to prevent container deadlocks.
+
 ```bash
 !git pull origin main
 !python -m models.baseline_4.train --config configs/baseline_4.yaml
 ```
-
