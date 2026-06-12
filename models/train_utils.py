@@ -4,39 +4,16 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 from torch.amp import autocast, GradScaler
 from torch.utils.tensorboard import SummaryWriter
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class FocalLoss(nn.Module):
-    def __init__(self, gamma=2.0, alpha=None):
-        super().__init__()
-        self.gamma = gamma
-        self.alpha = None
-
-        if alpha is not None:
-            self.alpha = alpha.clone().detach() if isinstance(alpha, torch.Tensor) else torch.tensor(
-                alpha).clone().detach()
-            self.alpha.requires_grad_(True)
-
-    def forward(self, inputs, targets):
-        ce_loss = nn.CrossEntropyLoss(reduction='none')(inputs, targets)
-        pt = torch.exp(-ce_loss)
-        focal_loss = ((1 - pt) ** self.gamma) * ce_loss
-
-        if self.alpha is not None:
-            alpha = self.alpha.to(targets.device)
-            focal_loss = alpha[targets] * focal_loss
-
-        return focal_loss.mean()
-
 def train_and_validate(model, train_loader, val_loader, criterion, optimizer, num_epochs, device, run_dir, save_name,
-                       logger, log_interval=10, class_names=None):
+                       logger, log_interval=10, class_names=None, early_stop_patience=7):
     """
-    Generic training and validation loop.
-    Saves the best model weights, metrics and logs to the specified run directory.
+    Generic training and validation loop with Early Stopping and Comprehensive Checkpointing.
     """
     best_val_acc = 0.0
+    epochs_no_improve = 0  # Early Stopping Counter
 
     # Initialize the Gradient Scaler for AMP
     scaler = GradScaler('cuda')
@@ -48,6 +25,7 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
     logger.info(f"All outputs will be saved to: {run_dir}")
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
+
     for epoch in range(num_epochs):
         logger.info(f"\n{'=' * 15} Epoch {epoch + 1}/{num_epochs} {'=' * 15}")
 
@@ -56,7 +34,6 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
         train_loss = 0.0
         train_correct = 0
         train_total = 0
-
 
         for i, (images, labels) in enumerate(train_loader):
             images, labels = images.to(device), labels.to(device)
@@ -72,7 +49,6 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
             scaler.step(optimizer) # unscale gradients back to normal scale to update weights
             scaler.update()
 
-
             batch_size = images.size(0)
             train_loss += loss.item() * batch_size
             _, predicted = torch.max(outputs.data, 1)
@@ -80,12 +56,6 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
 
             batch_correct = (predicted == labels).sum().item()
             train_correct += batch_correct
-
-
-            # if (i + 1) % log_interval == 0 or (i + 1) == len(train_loader):
-            #     current_acc = 100.0 * batch_correct / batch_size
-            #     logger.info(
-            #         f"Epoch: {epoch + 1} | Batch: {i + 1}/{len(train_loader)} | Loss: {loss.item():.4f} | Acc: {current_acc:.2f}%")
 
         epoch_train_loss = train_loss / train_total
         epoch_train_acc = 100.0 * train_correct / train_total
@@ -102,7 +72,6 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
         logger.info("Evaluating validation set")
 
         with torch.no_grad():
-
             for images, labels in val_loader:
                 images, labels = images.to(device), labels.to(device)
 
@@ -133,15 +102,24 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
         writer.add_scalar('Accuracy/Validation', epoch_val_acc, epoch)
 
         logger.info("\n Validation Metrics Breakdown")
-        # classification_report returns a string, so just pass it to the logger
         logger.info("\n" + classification_report(all_labels, all_preds, zero_division=0))
 
-        # Save the best model and plot the Confusion Matrix
+        # Checkpoint and Early Stopping Logic
         if epoch_val_acc > best_val_acc:
             logger.info(
-                f"** Validation accuracy improved from {best_val_acc:.2f}% to {epoch_val_acc:.2f}%. Saving model... **")
+                f"** Validation accuracy improved from {best_val_acc:.2f}% to {epoch_val_acc:.2f}%. Saving model **")
             best_val_acc = epoch_val_acc
-            torch.save(model.state_dict(), save_path)
+            epochs_no_improve = 0  # Reset early stopping counter
+
+            # Save dictionary
+            checkpoint = {
+                'epoch': epoch + 1,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'scaler_state_dict': scaler.state_dict(),
+                'best_val_acc': best_val_acc
+            }
+            torch.save(checkpoint, save_path)
 
             # Generate Confusion Matrix
             if class_names is None:
@@ -157,9 +135,25 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
             plt.tight_layout()
             plt.savefig(os.path.join(run_dir, 'best_confusion_matrix.png'), dpi=300)
             plt.close(fig)
+        else:
+            epochs_no_improve += 1
+            logger.info(f"No improvement in validation accuracy for {epochs_no_improve} consecutive epoch(s).")
+
+        # Trigger Early Stopping
+        if epochs_no_improve >= early_stop_patience:
+            logger.info(f"\n EARLY STOPPING TRIGGERED! Halted at Epoch {epoch + 1} to prevent overfitting.")
+            break
 
     # Close TensorBoard writer
     writer.close()
+
+    # Final Model Logger Summary
+    logger.info("\n" + "=" * 60)
+    logger.info(f"Training Pipeline Complete!")
+    logger.info(f"Best Validation Accuracy: {best_val_acc:.2f}%")
+    logger.info(f"Comprehensive Checkpoint safely stored at:\n   -> {save_path}")
+    logger.info("=" * 60 + "\n")
+
     return model
 
 
@@ -182,12 +176,10 @@ def print_model_summary(model):
 
     non_trainable_params = total_params - trainable_params
 
-    # Format numbers with commas for readability
     print(f"Total Parameters:      {total_params:,}")
     print(f"Trainable Parameters:  {trainable_params:,}")
     print(f"Frozen Parameters:     {non_trainable_params:,}")
 
-    # Calculate percentage
     if total_params > 0:
         percent_trainable = (trainable_params / total_params) * 100
         print(f"% Trainable:           {percent_trainable:.2f}%")

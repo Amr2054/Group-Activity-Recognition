@@ -7,12 +7,12 @@ from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from data_utilities import PlayerGroupActivityDataset
+from data import PlayerGroupActivityDataset
 from models.baseline_3.model import PersonLevelClassifier
 from models.baseline_6.model import Group_Activity_Temporal_Classifier
 from models.train_utils import train_and_validate
-from loader_utils.helper import load_config, set_seed, setup_logger
-from loader_utils.env_utils import setup_environment
+from utils.helper import load_config, set_seed, setup_logger
+from utils.env_utils import setup_environment
 
 
 def get_transforms():

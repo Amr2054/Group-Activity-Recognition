@@ -8,12 +8,12 @@ from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from data_utilities import GroupActivityDataset
+from data import GroupActivityDataset
 from models.baseline_3.model import PersonLevelClassifier, GroupLevelClassifier
 from models.train_utils import train_and_validate
-from loader_utils.helper import load_config
-from loader_utils.env_utils import setup_environment
-from loader_utils.helper import set_seed,setup_logger
+from utils.helper import load_config
+from utils.env_utils import setup_environment
+from utils.helper import set_seed,setup_logger
 from models import print_model_summary
 
 def get_transforms():

@@ -1,9 +1,9 @@
 from typing import List
 import cv2
 import os
-from data_utilities import BoxInfo
+from data import BoxInfo
 import pickle
-from loader_utils.env_utils import setup_environment
+from utils.env_utils import setup_environment
 dataset_root = '../dataset'
 
 def create_frame_boxes_dct(path):

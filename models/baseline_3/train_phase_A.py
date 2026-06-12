@@ -9,11 +9,11 @@ from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from data_utilities import PersonActionDataset
+from data import PersonActionDataset
 from models.baseline_3.model import PersonLevelClassifier
 from models.train_utils import train_and_validate, print_model_summary
-from loader_utils import load_config ,setup_environment
-from loader_utils.helper import set_seed,setup_logger
+from utils import load_config ,setup_environment
+from utils.helper import set_seed,setup_logger
 
 def get_transforms():
     train_transform = A.Compose([

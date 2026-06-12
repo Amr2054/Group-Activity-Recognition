@@ -396,9 +396,6 @@ class PlayerGroupActivityDataset(Dataset):
 
         return final_tensor, label
 
-
-
-
 class PlayerGroupActivityDataset_B8(Dataset):
     """
     Dedicated Dataset for Baseline 8.

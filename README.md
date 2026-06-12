@@ -51,7 +51,7 @@ pip install -r requirements.txt
 Ensure the Volleyball dataset is downloaded. Parse the raw text annotations into the optimized `.pkl` format:
 
 ```bash
-python -m data_utilities.data_annot_loader
+python -m data.data_annot_loader
 
 ```
 
@@ -82,15 +82,16 @@ Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition/
 │   ├── baseline_6.yaml
 │   ├── baseline_7.yaml
 │   └── baseline_8.yaml
-├── data_utilities/           # Data ingestion, Pickling, and PyTorch Datasets
+├── data/                     # Data ingestion, Pickling, and PyTorch Datasets
 │   ├── box_annot.py
 │   ├── data_annot_loader.py
-│   └── dataset.py            # Contains Bounding Box, Frame-by-Frame, and Anchor-Sorted Datasets
-├── loader_utils/             # Core engineering utilities
+│   └── data_loader.py        # Contains Bounding Box, Frame-by-Frame, and Anchor-Sorted Datasets
+├── utils/                    # Core engineering utilities
 │   ├── env_utils.py          # Auto-detects Kaggle vs Local environments
 │   └── helper.py             # Config parsers, seed setting, and formatting loggers
 ├── models/                   # Architecture and Training scripts
 │   ├── train_utils.py        # Universal training/validation loop
+│   ├── eval_utils.py/        # Universal testing loop
 │   ├── baseline_1/           # Standard ResNet50 Image Classifier
 │   ├── baseline_3/           # Spatial Person & Group Classifier
 │   ├── baseline_4/           # Full-Frame Temporal LRCN

@@ -8,12 +8,12 @@ from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from data_utilities.dataset import PlayerGroupActivityDataset
+from data.data_loader import PlayerGroupActivityDataset
 from models.baseline_5.model import Person_Activity_Temporal_Classifier
 from models.baseline_7.model import  Full_Hierarchical_Model
 from models.train_utils import train_and_validate, print_model_summary, FocalLoss
-from loader_utils.helper import load_config, set_seed, setup_logger
-from loader_utils.env_utils import setup_environment
+from utils.helper import load_config, set_seed, setup_logger
+from utils.env_utils import setup_environment
 
 
 def get_transforms():

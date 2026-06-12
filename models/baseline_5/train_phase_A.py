@@ -10,11 +10,11 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 # Import the new clean Dataset and the Phase A Model
-from data_utilities.dataset import PlayerSequenceActivityDataset
+from data.data_loader import PlayerSequenceActivityDataset
 from models.baseline_5.model import Person_Activity_Temporal_Classifier
 from models.train_utils import train_and_validate, print_model_summary
-from loader_utils.helper import load_config, set_seed, setup_logger
-from loader_utils.env_utils import setup_environment
+from utils.helper import load_config, set_seed, setup_logger
+from utils.env_utils import setup_environment
 
 
 def get_transforms():

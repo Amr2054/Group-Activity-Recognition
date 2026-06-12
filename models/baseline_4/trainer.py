@@ -7,11 +7,11 @@ from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from data_utilities import SequenceActivityDataset
+from data import SequenceActivityDataset
 from models.baseline_4.model import Group_Activity_Temporal_Classifier
 from models.train_utils import train_and_validate, FocalLoss
-from loader_utils.helper import load_config, set_seed, setup_logger
-from loader_utils.env_utils import setup_environment
+from utils.helper import load_config, set_seed, setup_logger
+from utils.env_utils import setup_environment
 
 
 def get_transforms():

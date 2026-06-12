@@ -8,11 +8,11 @@ from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from data_utilities import GroupActivityDataset
+from data import GroupActivityDataset
 from models.baseline_1.model import ResNet50FineTuner
 from models import train_and_validate
-from loader_utils import load_config,set_seed,setup_logger
-from loader_utils import setup_environment
+from utils import load_config,set_seed,setup_logger
+from utils import setup_environment
 
 def get_transforms():
 
