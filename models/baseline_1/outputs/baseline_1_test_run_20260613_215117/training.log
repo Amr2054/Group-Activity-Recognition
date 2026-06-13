@@ -1,0 +1,28 @@
+2026-06-13 21:51:17,560 [INFO]  Starting Baseline 1 Test Evaluation Pipeline
+2026-06-13 21:51:19,108 [INFO] 
+============================================================
+2026-06-13 21:51:19,108 [INFO] Initiating Test Set Evaluation
+2026-06-13 21:51:19,108 [INFO] Loading checkpoint from: models/baseline_1/outputs/baseline_1_run_20260613_145114/best_baseline1.pth
+2026-06-13 21:51:19,385 [INFO] Successfully loaded checkpoint (Validation Acc was: 69.60808683403762%)
+2026-06-13 21:51:47,479 [INFO] Test Loss: 1.5394 | Test Acc: 72.58%
+2026-06-13 21:51:47,483 [INFO] 
+ Test Metrics Breakdown
+2026-06-13 21:51:47,605 [INFO] 
+              precision    recall  f1-score   support
+
+           0       0.69      0.66      0.68      1728
+           1       0.75      0.78      0.76      1557
+           2       0.65      0.67      0.66      1890
+           3       0.83      0.72      0.77       783
+           4       0.82      0.88      0.85       918
+           5       0.71      0.64      0.68      2034
+           6       0.78      0.82      0.80      1611
+           7       0.69      0.72      0.71      1512
+
+    accuracy                           0.73     12033
+   macro avg       0.74      0.74      0.74     12033
+weighted avg       0.73      0.73      0.72     12033
+
+2026-06-13 21:51:49,321 [INFO] Test Confusion Matrix saved to: ./models/baseline_1/outputs/baseline_1_test_run_20260613_215117/test_confusion_matrix.png
+2026-06-13 21:51:49,321 [INFO] ============================================================
+
