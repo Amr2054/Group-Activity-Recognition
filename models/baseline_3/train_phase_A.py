@@ -86,8 +86,8 @@ if __name__ == "__main__":
     print_model_summary(model)
 
     # Dynamic Class Weighting
-    logger.info("Calculating dynamic class weights to combat imbalance")
-    class_weights = calculate_balanced_weights(train_set=train_set,min_length=config.model['num_classes'])
+    logger.info("Calculating dynamic class weights")
+    class_weights = calculate_balanced_weights(train_set=train_set,min_length=config.model['num_classes'],sample_index=2)
     weights_tensor = torch.FloatTensor(class_weights).to(device)
 
     logger.info(f"Applied Class Weights: {np.round(class_weights, 3)}")
