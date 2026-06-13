@@ -1,3 +1,8 @@
+"""
+Baseline B1 : This baseline is the basic resnet50
+model fine-tuned for group activity recognition in a single frame.
+"""
+
 import torch
 import torch.nn as nn
 import torchvision
@@ -7,13 +12,15 @@ class ResNet50FineTuner(nn.Module):
     def __init__(self, num_classes=8):
         super(ResNet50FineTuner, self).__init__()
         self.backbone = resnet50(weights=torchvision.models.ResNet50_Weights.DEFAULT)
+
+        # Freezing All layers except last layer
         for param in self.backbone.parameters():
             param.requires_grad = False
         for param in self.backbone.layer4.parameters():
             param.requires_grad = True
 
-        num_ftrs = self.backbone.fc.in_features
-        self.backbone.fc = nn.Linear(num_ftrs, num_classes)
+        fc_input_dim = self.backbone.fc.in_features
+        self.backbone.fc = nn.Linear(fc_input_dim, num_classes)
 
     def forward(self, x):
         return self.backbone(x)

@@ -10,37 +10,24 @@ from albumentations.pytorch import ToTensorV2
 
 from data import GroupActivityDataset
 from models.baseline_1.model import ResNet50FineTuner
-from models import train_and_validate
+from models import train_and_validate, print_model_summary
 from utils import load_config,set_seed,setup_logger
 from utils import setup_environment
 
 def get_transforms():
-
+    """
+    Standard spatial geometry for the ResNet50 backbone.
+    """
     train_transform = A.Compose([
-        A.Resize(224, 224),
-        A.OneOf([
-            A.GaussianBlur(blur_limit=(3, 7)),
-            A.ColorJitter(brightness=0.2),
-            A.RandomBrightnessContrast(),
-            A.GaussNoise()
-        ], p=0.90),
-        A.OneOf([
-            A.HorizontalFlip(),
-            A.VerticalFlip(),
-        ], p=0.05),
-        A.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
-        ),
+        A.Resize(height=224, width=224),
+        A.ColorJitter(brightness=0.1, contrast=0.1, p=0.3),
+        A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ToTensorV2()
     ])
 
     val_transform = A.Compose([
-        A.Resize(224, 224),
-        A.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
-        ),
+        A.Resize(height=224, width=224),
+        A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ToTensorV2()
     ])
 
@@ -66,7 +53,7 @@ if __name__ == "__main__":
     annot_path = os.path.join(env['annot_dir'], config.data['annot_file'])
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Training Baseline 1 on device: {device}")
+    print(f"Training on device: {device}")
 
     # Prepare Data for model
     train_transform, val_transform = get_transforms()
@@ -79,11 +66,16 @@ if __name__ == "__main__":
 
     # Initialize Model, Loss, Optimizer
     model = ResNet50FineTuner(num_classes=config.model['num_classes']).to(device)
+    print_model_summary(model)
+
     criterion = nn.CrossEntropyLoss()
+
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = optim.Adam(trainable_params, lr=config.training['learning_rate'])
+    optimizer = optim.AdamW(trainable_params, lr=config.training['learning_rate'],
+                            weight_decay=config.training['weight_decay'])
 
     logger.info("Initializing training loop")
+    num_epochs = args.epochs if args.epochs else config.training['epochs']
 
     # Train Model
     best_model = train_and_validate(
@@ -92,13 +84,12 @@ if __name__ == "__main__":
         val_loader=val_loader,
         criterion=criterion,
         optimizer=optimizer,
-        # num_epochs=config.training['epochs'],
-        num_epochs=args.epochs,
+        num_epochs=num_epochs,
         device=device,
         run_dir=env['run_dir'],
         save_name=config.model['save_name'],
         logger=logger,
-        log_interval=10,
-        class_names=config.model.get('num_classes_label', None)
+        class_names=config.model.get('num_classes_label', None),
+        early_stop_patience=config.training['early_stop_patience'],
     )
-    logger.info("Training Pipeline Complete")
+    logger.info("Baseline 1 Training Complete!")

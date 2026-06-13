@@ -59,3 +59,15 @@ def setup_logger(run_dir):
 
     return logger
 
+def calculate_balanced_weights(train_set):
+
+    all_train_labels = [sample[2] for sample in train_set.samples]
+    class_counts = np.bincount(all_train_labels)
+    total_samples = len(all_train_labels)
+    num_classes = len(class_counts)
+
+    # Calculate balanced weights
+    # Formula: total_samples / (num_classes * count_for_this_class)
+    class_weights = total_samples / (num_classes * class_counts)
+
+    return class_weights

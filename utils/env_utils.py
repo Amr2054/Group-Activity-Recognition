@@ -37,7 +37,7 @@ def setup_environment(baseline_name="baseline_1"):
         env_config['b3_phase_A_model'] = "models/baseline_3/outputs/run_20260515_000626/best_person_classifier.pth"
         env_config['b5_phase_A_model'] = "models/baseline_5/outputs/run_20260608_141138/best_baseline5_phase_A.pth"
     # Create a unique run directory
-    env_config['run_dir'] = os.path.join(base_output, f"run_{timestamp}")
+    env_config['run_dir'] = os.path.join(base_output, f"{baseline_name}_run_{timestamp}")
     os.makedirs(env_config['run_dir'], exist_ok=True)
 
     return env_config

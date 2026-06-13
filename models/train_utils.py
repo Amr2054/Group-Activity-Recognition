@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def train_and_validate(model, train_loader, val_loader, criterion, optimizer, num_epochs, device, run_dir, save_name,
-                       logger, log_interval=10, class_names=None, early_stop_patience=7):
+                       logger, class_names=None, early_stop_patience=7):
     """
     Generic training and validation loop with Early Stopping and Comprehensive Checkpointing.
     """
@@ -151,7 +151,7 @@ def train_and_validate(model, train_loader, val_loader, criterion, optimizer, nu
     logger.info("\n" + "=" * 60)
     logger.info(f"Training Pipeline Complete!")
     logger.info(f"Best Validation Accuracy: {best_val_acc:.2f}%")
-    logger.info(f"Comprehensive Checkpoint safely stored at:\n   -> {save_path}")
+    logger.info(f"Checkpoint safely stored at:\n   -> {save_path}")
     logger.info("=" * 60 + "\n")
 
     return model
