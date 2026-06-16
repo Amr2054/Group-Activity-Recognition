@@ -1,0 +1,28 @@
+2026-06-16 13:09:36,053 [INFO]  Starting Baseline 6 Test Evaluation Pipeline
+2026-06-16 13:10:03,994 [INFO] 
+============================================================
+2026-06-16 13:10:03,994 [INFO] Initiating Test Set Evaluation
+2026-06-16 13:10:03,994 [INFO] Loading checkpoint from: /kaggle/input/models/amr2054/baseline-6/pytorch/default/1/best_baseline6_LSTM.pth
+2026-06-16 13:10:06,337 [INFO] Successfully loaded checkpoint (Validation Acc was: 75.0186428038777%)
+2026-06-16 13:14:24,149 [INFO] Test Loss: 0.6195 | Test Acc: 78.46%
+2026-06-16 13:14:24,149 [INFO] 
+ Test Metrics Breakdown
+2026-06-16 13:14:24,164 [INFO] 
+              precision    recall  f1-score   support
+
+           0       0.91      0.75      0.82       192
+           1       0.85      0.91      0.88       173
+           2       0.68      0.85      0.76       210
+           3       0.57      0.20      0.29        87
+           4       0.52      0.84      0.64       102
+           5       0.85      0.81      0.83       226
+           6       0.92      0.80      0.85       179
+           7       0.84      0.84      0.84       168
+
+    accuracy                           0.78      1337
+   macro avg       0.77      0.75      0.74      1337
+weighted avg       0.80      0.78      0.78      1337
+
+2026-06-16 13:14:25,414 [INFO] Test Confusion Matrix saved to: /kaggle/working/Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition/models/baseline_6/outputs/baseline_6_test_run_20260616_130936/test_confusion_matrix.png
+2026-06-16 13:14:25,414 [INFO] ============================================================
+
