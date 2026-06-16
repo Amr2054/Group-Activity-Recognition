@@ -15,7 +15,7 @@ group_activity_labels = {class_name:i for i, class_name in enumerate(group_activ
 
 class PersonActionDataset(Dataset):
     """
-    Dataset for Baseline 3: Returns individual cropped players and their action (9 classes)
+    Dataset for B3 Phase A: Returns individual cropped players and their action (9 classes)
     """
 
     def __init__(self, videos_root, annot_path, vid_indices, transform=None):
@@ -72,10 +72,13 @@ class PersonActionDataset(Dataset):
         return cropped_image, label
 
 class GroupActivityDataset(Dataset):
+    """
+    Dataset for B1, B3 Phase B:
+    Return one frame, and it's label.
+    optionally the bounding boxes info for each player in the frame (for baseline 3)
+    """
+
     def __init__(self, videos_root, annot_path, vid_indices, transform=None, baseline=1, max_players=12):
-        """
-        Return frame, and it's label and optionally the bounding boxes info for each player in the frame (for baseline 3)
-        """
         self.videos_root = videos_root
         self.transform = transform
         self.baseline = baseline
@@ -150,6 +153,12 @@ class GroupActivityDataset(Dataset):
             return players_tensor, label
 
 class SequenceActivityDataset(Dataset):
+    """
+    Dataset for B4:
+    Extracts a temporal sequence (9 frames) as one image per frame.
+    Assigns One clip label
+    Output: [Seq_Len, Channels, Height, Width], Label
+    """
     def __init__(self, videos_root, annot_path, vid_indices, transform=None, seq_length =9):
         self.videos_root = videos_root
         self.transform = transform
@@ -216,7 +225,7 @@ class SequenceActivityDataset(Dataset):
 
 class PlayerSequenceActivityDataset(Dataset):
     """
-    Dataset for Phase A:
+    Dataset for B5 Phase A:
     Extracts a temporal sequence (9 frames) of a SINGLE player.
     Assigns the label from the Anchor Keyframe (the middle frame).
     Output: [Seq_Len, Channels, Height, Width], Label
@@ -304,6 +313,12 @@ class PlayerSequenceActivityDataset(Dataset):
         return sequence_tensor, label
 
 class PlayerGroupActivityDataset(Dataset):
+    """
+    Dataset for B5,B6,B7:
+    Extracts a temporal sequence (9 frames) with 12 players .
+    Assigns one clip label from the Anchor Keyframe (the middle frame).
+    Output: [Players, Seq_Len, Channels, Height, Width], Label
+    """
     def __init__(self, videos_root, annot_path, vid_indices, transform=None, seq_length=9, max_players=12):
         self.videos_root = videos_root
         self.transform = transform
