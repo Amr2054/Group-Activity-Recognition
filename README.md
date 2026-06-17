@@ -118,8 +118,8 @@ The model operates in two hierarchical stages:
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/Amr2054/Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition.git
-cd Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition
+git clone https://github.com/Amr2054/Group-Activity-Recognition.git
+cd Group-Activity-Recognition
 pip install -r requirements.txt
 ```
 
@@ -169,7 +169,7 @@ python -m models.baseline_8.test_model --config configs/baseline_8.yaml --checkp
 ## Project Structure
 
 ```text
-Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition/
+Group-Activity-Recognition/
 ├── assets/                   # Images for README (header, architecture, demo GIF, etc.)
 ├── configs/                  # YAML files controlling all model/training parameters
 │   ├── baseline_1.yaml
@@ -211,37 +211,37 @@ The [Volleyball dataset](https://github.com/mostafa-saad/deep-activity-rec) cons
 ### Group Activity Labels
 
 | Group Activity Class | Instances |
-|---|---|
-| Right set | 644 |
-| Right spike | 623 |
-| Right pass | 801 |
-| Right winpoint | 295 |
-| Left winpoint | 367 |
-| Left pass | 826 |
-| Left spike | 642 |
-| Left set | 633 |
+|----------------------|-----------|
+| Right set            | 644       |
+| Right spike          | 623       |
+| Right pass           | 801       |
+| Right winpoint       | 295       |
+| Left winpoint        | 367       |
+| Left pass            | 826       |
+| Left spike           | 642       |
+| Left set             | 633       |
 
 ### Player Action Labels
 
 | Action Class | Instances |
-|---|---|
-| Waiting | 3,601 |
-| Setting | 1,332 |
-| Digging | 2,333 |
-| Falling | 1,241 |
-| Spiking | 1,216 |
-| Blocking | 2,458 |
-| Jumping | 341 |
-| Moving | 5,121 |
-| Standing | 38,696 |
+|--------------|-----------|
+| Waiting      | 3,601     |
+| Setting      | 1,332     |
+| Digging      | 2,333     |
+| Falling      | 1,241     |
+| Spiking      | 1,216     |
+| Blocking     | 2,458     |
+| Jumping      | 341       |
+| Moving       | 5,121     |
+| Standing     | 38,696    |
 
 ### Train / Validation / Test Split
 
-| Split | Video IDs |
-|---|---|
-| Train | 1, 3, 6, 7, 10, 13, 15, 16, 18, 22, 23, 31, 32, 36, 38, 39, 40, 41, 42, 48, 50, 52, 53, 54 |
-| Validation | 0, 2, 8, 12, 17, 19, 24, 26, 27, 28, 30, 33, 46, 49, 51 |
-| Test | 4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47 |
+| Split      | Video IDs                                                                                  |
+|------------|--------------------------------------------------------------------------------------------|
+| Train      | 1, 3, 6, 7, 10, 13, 15, 16, 18, 22, 23, 31, 32, 36, 38, 39, 40, 41, 42, 48, 50, 52, 53, 54 |
+| Validation | 0, 2, 8, 12, 17, 19, 24, 26, 27, 28, 30, 33, 46, 49, 51                                    |
+| Test       | 4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47                                |
 
 ---
 
@@ -249,15 +249,15 @@ The [Volleyball dataset](https://github.com/mostafa-saad/deep-activity-rec) cons
 
 Each baseline isolates one architectural variable to show its contribution to final accuracy.
 
-| Baseline | Key Idea | Spatial | Temporal | Person-Level | Group-Level |
-|---|---|:---:|:---:|:---:|:---:|
-| B1 | Single-frame ResNet50 | ✅ | ❌ | ❌ | ❌ |
-| B3 | Pooled player crops | ✅ | ❌ | ✅ | ❌ |
-| B4 | Full-frame LRCN | ✅ | ✅ | ❌ | ❌ |
-| B5 | Person LSTM + frozen pool | ✅ | ✅ | ✅ | ❌ |
-| B6 | Group BiLSTM only | ✅ | ✅ | ❌ | ✅ |
-| B7 | Two-stage hierarchical | ✅ | ✅ | ✅ | ✅ |
-| B8 | + Sub-group pooling | ✅ | ✅ | ✅ | ✅ |
+| Baseline | Key Idea                  | Spatial | Temporal | Person-Level | Group-Level |
+|----------|---------------------------|:-------:|:--------:|:------------:|:-----------:|
+| B1       | Single-frame ResNet50     |    ✅    |    ❌     |      ❌       |      ❌      |
+| B3       | Pooled player crops       |    ✅    |    ❌     |      ✅       |      ❌      |
+| B4       | Full-frame LRCN           |    ✅    |    ✅     |      ❌       |      ❌      |
+| B5       | Person LSTM + frozen pool |    ✅    |    ✅     |      ✅       |      ❌      |
+| B6       | Group BiLSTM only         |    ✅    |    ✅     |      ❌       |      ✅      |
+| B7       | Two-stage hierarchical    |    ✅    |    ✅     |      ✅       |      ✅      |
+| B8       | + Sub-group pooling       |    ✅    |    ✅     |      ✅       |      ✅      |
 
 **Baseline 1 (Image Classification)** — A purely spatial model using ResNet50 to classify group activity from a single static frame. Establishes the spatial-only ceiling.
 
@@ -271,7 +271,7 @@ Each baseline isolates one architectural variable to show its contribution to fi
 
 **Baseline 7 (Full Two-Stage Hierarchical)** — Combines B5 and B6. Uses the Phase A Person LSTM for individual action semantics, applies frame-by-frame pooling, and feeds the temporal sequence into a Group BiLSTM.
 
-**Baseline 8 (Sub-Group Pooling)** — Prevents the Group LSTM from confusing "Left Spike" vs "Right Spike" by introducing Anchor Frame X-axis Sorting — physically slicing the court in half to map players explicitly to Left Team and Right Team tensors before temporal tracking.
+**Baseline 8 (Sub-Group Pooling)** — Prevents the Group LSTM from confusing "Left Spike" vs "Right Spike" by introducing Anchor Frame X-axis Sorting  physically slicing the court in half to map players explicitly to Left Team and Right Team tensors before temporal tracking.
 
 ---
 
@@ -288,7 +288,7 @@ This repository is designed to be edited locally (PyCharm / VSCode) and executed
 2. In a Kaggle Notebook, clone the repository:
 
 ```bash
-!git clone https://github.com/Amr2054/Hierarchical-Deep-Temporal-Model-for-Group-Activity-Recognition.git
+!git clone https://github.com/Amr2054/Group-Activity-Recognition.git
 ```
 
 3. The internal `setup_environment()` call will automatically:
