@@ -18,12 +18,13 @@
 <p align="center">
   <img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white" alt="PyTorch">
   <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
-  <img src="https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=Kaggle&logoColor=white" alt="Kaggle">
 
-[//]: # (  <img src="https://img.shields.io/badge/CUDA-11.x%2B-76B900?style=for-the-badge&logo=nvidia&logoColor=white" alt="CUDA">)
+[//]: # (  <img src="https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=Kaggle&logoColor=white" alt="Kaggle">)
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/Best%20Accuracy-91.85%25-brightgreen?style=for-the-badge" alt="Best Accuracy">
-  <img src="https://img.shields.io/badge/vs%20Paper-+9.95%25-blue?style=for-the-badge" alt="vs Paper">
+
+[//]: # (  <img src="https://img.shields.io/badge/Best%20Accuracy-91.85%25-brightgreen?style=for-the-badge" alt="Best Accuracy">)
+
+[//]: # (  <img src="https://img.shields.io/badge/vs%20Paper-+9.95%25-blue?style=for-the-badge" alt="vs Paper">)
 </p>
 
 ---
