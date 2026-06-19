@@ -1,3 +1,6 @@
+"""
+Class to extract annotated boxes from video file
+"""
 
 
 class BoxInfo:

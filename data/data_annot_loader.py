@@ -4,7 +4,6 @@ import os
 from data import BoxInfo
 import pickle
 from utils.env_utils import setup_environment
-dataset_root = '../dataset'
 
 def create_frame_boxes_dct(path):
     with open(path, 'r') as file:
@@ -29,25 +28,46 @@ def create_frame_boxes_dct(path):
 
         return frame_boxes_dct
 
-def visualize_clip_annot(annot_path, video_dir):
+
+def visualize_clip_annot(annot_path, video_dir, output_video="annotated_video.mp4", fps=10):
     frame_boxes_dct = create_frame_boxes_dct(annot_path)
     font = cv2.FONT_HERSHEY_SIMPLEX
 
+    # Get the first image to determine frame size
+    first_frame = next(iter(frame_boxes_dct))
+    first_img = cv2.imread(os.path.join(video_dir, f"{first_frame}.jpg"))
+
+    if first_img is None:
+        raise ValueError("Could not read the first image.")
+
+    height, width = first_img.shape[:2]
+
+    # Create video writer
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    writer = cv2.VideoWriter(output_video, fourcc, fps, (width, height))
+
     for frame_id, boxes_info in frame_boxes_dct.items():
-        img_path = os.path.join(video_dir, f'{frame_id}.jpg')
+        img_path = os.path.join(video_dir, f"{frame_id}.jpg")
         image = cv2.imread(img_path)
 
+        if image is None:
+            print(f"Warning: Could not read {img_path}")
+            continue
+
         for box_info in boxes_info:
-            x1,x2,y1,y2 = box_info.box
+            x1, x2, y1, y2 = box_info.box
 
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(image, box_info.category, (x1, y1 - 10), font, 0.5, (0, 255, 0), 2)
+            cv2.putText(image,box_info.category,(x1, y1 - 10),font,0.5,(0, 255, 0),2,
+                        )
+        cv2.imshow("Image", image)
+        cv2.waitKey(int(1000 / fps))
 
-        cv2.imshow('Image', image)
-        cv2.waitKey(300)
+        writer.write(image)
 
+    writer.release()
     cv2.destroyAllWindows()
-
+    print(f"Video saved to: {output_video}")
 
 def load_video_annot(video_annot):
     with open(video_annot, 'r') as file:
@@ -122,7 +142,7 @@ def create_pkl_version(env):
 
 
 def test_pkl_version():
-    with open(f'{dataset_root}/annot_all.pkl', 'rb') as file:
+    with open(f'{env['annot_dir']}/annot_all.pkl', 'rb') as file:
         videos_annot = pickle.load(file)
 
     boxes: List[BoxInfo] = videos_annot['0']['13456']['frame_boxes_dct'][13454]
@@ -136,3 +156,8 @@ if '__main__' == __name__:
     env = setup_environment(baseline_name="data_prep")
     create_pkl_version(env)
     # test_pkl_version()
+
+    # Use to visualize annotations and save video with annotations
+    # annot_file = f'{env['dataset_root']}/volleyball_tracking_annotation/volleyball_tracking_annotation/4/24745/24745.txt'
+    # clip_dir_path = os.path.dirname(annot_file).replace('volleyball_tracking_annotation/volleyball_tracking_annotation', 'volleyball_/videos')
+    # visualize_clip_annot(annot_file, clip_dir_path, output_video=f'{env['dataset_root']}/clip_annot.mp4',fps =10)

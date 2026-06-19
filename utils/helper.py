@@ -58,7 +58,9 @@ def setup_logger(run_dir,mode: str = "training"):
     return logger
 
 def calculate_balanced_weights(train_set,min_length,sample_index):
-
+    """
+    Calculates the balanced weights given a training set.
+    """
     all_train_labels = [sample[sample_index] for sample in train_set.samples]
     class_counts = np.bincount(all_train_labels, minlength=min_length)
     total_samples = len(all_train_labels)
